@@ -1,4 +1,4 @@
-package container_scheduling
+package main
 
 import (
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/cmd"
