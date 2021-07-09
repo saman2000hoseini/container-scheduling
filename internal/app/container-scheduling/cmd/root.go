@@ -16,5 +16,7 @@ func NewRootCommand() *cobra.Command {
 
 	server.Register(root, cfg)
 
+	//schedular.Register(root)
+
 	return root
 }

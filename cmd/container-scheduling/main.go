@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/cmd"
 	"os"
+
+	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/cmd"
 )
 
 const (

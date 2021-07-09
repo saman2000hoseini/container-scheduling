@@ -2,19 +2,26 @@ package server
 
 import (
 	"context"
-	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/config"
-	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/router"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/cmd/schedular"
+	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/config"
+	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/handler"
+	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/router"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 )
 
 func main(cfg config.Config) {
 	e := router.New(cfg)
 
-	// place to define endpoints
+	request_handler := &handler.Job_handler{Cfg: cfg}
+
+	go schedular.Run()
+
+	e.POST("/request", request_handler.User_request)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
