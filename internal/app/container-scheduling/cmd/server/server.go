@@ -6,7 +6,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/cmd/schedular"
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/config"
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/handler"
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/router"
@@ -17,22 +16,20 @@ import (
 func main(cfg config.Config) {
 	e := router.New(cfg)
 
-	request_handler := &handler.Job_handler{Cfg: cfg}
+	requestHandler := &handler.JobHandler{Cfg: cfg}
 
-	go schedular.Run()
-
-	e.POST("/request", request_handler.User_request)
+	e.POST("/request", requestHandler.UserRequest)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
 		if err := e.Start(cfg.Server.Address); err != nil {
-			logrus.Fatalf("failed to start virtual-box management server: %s", err.Error())
+			logrus.Fatalf("failed to start container scheduling server: %s", err.Error())
 		}
 	}()
 
-	logrus.Info("virtual-box management server started!")
+	logrus.Info("container scheduling server started!")
 
 	s := <-sig
 
@@ -44,7 +41,7 @@ func main(cfg config.Config) {
 	e.Server.SetKeepAlivesEnabled(false)
 
 	if err := e.Shutdown(ctx); err != nil {
-		logrus.Errorf("failed to shutdown virtual-box management server: %s", err.Error())
+		logrus.Errorf("failed to shutdown container scheduling server: %s", err.Error())
 	}
 }
 

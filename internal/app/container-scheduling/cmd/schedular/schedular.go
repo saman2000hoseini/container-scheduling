@@ -2,31 +2,44 @@ package schedular
 
 import (
 	"fmt"
-
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/handler"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+	"os"
+	"os/signal"
+	"syscall"
 	//"github.com/spf13/cobra"
 )
 
-func Run() {
+func main() {
 	//delivered_job := request.Job_request{}
 
-	fmt.Print("im in schedular")
-	for {
-		delivered_job := <-handler.Jobs
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 
-		fmt.Print("delivered job is ", delivered_job)
+	go func() {
+		for {
+			deliveredJob := <-handler.Jobs
 
-	}
+			fmt.Print("delivered job is ", deliveredJob)
+		}
+	}()
+
+	logrus.Info("container scheduling scheduler started!")
+
+	s := <-sig
+
+	logrus.Infof("signal %s received", s)
 }
 
-// func Register(root *cobra.Command) {
-// 	runSchedular := &cobra.Command{
-// 		Use:   "schedular",
-// 		Short: "schedular for container scheduling",
-// 		Run: func(cmd *cobra.Command, args []string) {
-// 			main()
-// 		},
-// 	}
+func Register(root *cobra.Command) {
+	runScheduler := &cobra.Command{
+		Use:   "scheduler",
+		Short: "scheduler for container scheduling",
+		Run: func(cmd *cobra.Command, args []string) {
+			main()
+		},
+	}
 
-// 	root.AddCommand(runSchedular)
-// }
+	root.AddCommand(runScheduler)
+}

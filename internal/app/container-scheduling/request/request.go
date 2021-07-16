@@ -1,6 +1,6 @@
 package request
 
-type Job_request struct {
+type JobRequest struct {
 	Id          uint64
 	Operation   string
 	Source      string

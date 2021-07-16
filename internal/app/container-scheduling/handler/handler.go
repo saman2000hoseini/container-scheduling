@@ -13,14 +13,13 @@ import (
 	"github.com/sony/sonyflake"
 )
 
-type Job_handler struct {
+type JobHandler struct {
 	Cfg config.Config
 }
 
-var Jobs = make(chan request.Job_request, 10)
+var Jobs = make(chan request.JobRequest, 10)
 
-func (h *Job_handler) User_request(c echo.Context) error {
-
+func (h *JobHandler) UserRequest(c echo.Context) error {
 	flake := sonyflake.NewSonyflake(sonyflake.Settings{})
 	id, _ := flake.NextID()
 
@@ -40,7 +39,7 @@ func (h *Job_handler) User_request(c echo.Context) error {
 
 	for _, i := range res[:len(res)-1] {
 		i := strings.Split(i, ",")
-		job := request.Job_request{Id: id, Operation: i[0][1:], Source: i[1][:len(i[1])-1], Destination: dest}
+		job := request.JobRequest{Id: id, Operation: i[0][1:], Source: i[1][:len(i[1])-1], Destination: dest}
 		Jobs <- job
 	}
 
