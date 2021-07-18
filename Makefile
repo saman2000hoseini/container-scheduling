@@ -9,3 +9,6 @@ build:
 
 install:
 	go install -ldflags $(LDFLAGS) ./cmd/container-scheduling
+
+build-image:
+	docker build -t container_scheduling ./assets/container
