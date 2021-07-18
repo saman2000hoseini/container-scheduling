@@ -10,10 +10,12 @@ RUN apk add --update --no-cache \
 
 WORKDIR /app
 
-COPY alpine-3.14.0 .
+COPY . .
 
 RUN g++ -o min min.cpp
 RUN g++ -o max max.cpp
 RUN g++ -o average average.cpp
 RUN g++ -o sort sort.cpp
 RUN g++ -o word_count word_count.cpp
+
+RUN rm *.cpp
