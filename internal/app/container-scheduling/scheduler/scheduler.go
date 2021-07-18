@@ -6,21 +6,32 @@ import (
 )
 
 type Scheduler struct {
-	jobs chan model.Job
+	jobs       chan model.Job
+	containers []*model.Container
 }
 
-func NewScheduler(jobs chan model.Job) *Scheduler {
-	return &Scheduler{jobs: jobs}
+func NewScheduler(jobs chan model.Job, containers []*model.Container) *Scheduler {
+	return &Scheduler{jobs: jobs, containers: containers}
 }
 
 func (s *Scheduler) Run() {
 	for {
 		deliveredJob := <-s.jobs
 
-		logrus.Infof("New job recieved; %v", deliveredJob)
+		logrus.Infof("New job recieved:\n%v", deliveredJob)
 
-		if err := handleJob(deliveredJob, ""); err != nil {
-			logrus.Errorf("error while executing %s: %s", deliveredJob.String(), err.Error())
+		minIndex := 0
+		for i := range s.containers {
+			if s.containers[i].Jobs() == 0 {
+				minIndex = i
+				break
+			}
+
+			if s.containers[i].Jobs() < s.containers[minIndex].Jobs() {
+				minIndex = i
+			}
 		}
+
+		s.containers[minIndex].AddJob(deliveredJob)
 	}
 }

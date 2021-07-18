@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/model"
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/scheduler"
 	"os"
@@ -15,7 +16,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const maxJobs = 10
+const (
+	maxJobs        = 100
+	containerName  = "container_scheduler"
+	containerCount = 3
+)
 
 func main(cfg config.Config) {
 	os.Mkdir("./results", 0755)
@@ -23,8 +28,13 @@ func main(cfg config.Config) {
 
 	jobs := make(chan model.Job, maxJobs)
 
+	containers := make([]*model.Container, containerCount)
+	for i := 1; i <= containerCount; i++ {
+		containers[i-1] = model.NewContainer(fmt.Sprintf("%s%d", containerName, i))
+	}
+
 	requestHandler := handler.NewJobHandler(cfg, jobs)
-	jobScheduler := scheduler.NewScheduler(jobs)
+	jobScheduler := scheduler.NewScheduler(jobs, containers)
 
 	e.POST("/request", requestHandler.UserRequest)
 
