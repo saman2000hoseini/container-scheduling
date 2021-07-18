@@ -18,5 +18,9 @@ func (s *Scheduler) Run() {
 		deliveredJob := <-s.jobs
 
 		logrus.Infof("New job recieved; %v", deliveredJob)
+
+		if err := handleJob(deliveredJob, ""); err != nil {
+			logrus.Errorf("error while executing %s: %s", deliveredJob.String(), err.Error())
+		}
 	}
 }

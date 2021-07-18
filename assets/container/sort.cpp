@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
 
     while (!nums.empty()) {
         myFile << nums.back() << endl;
+        cout << nums.back() << endl;
         nums.pop_back();
     }
 

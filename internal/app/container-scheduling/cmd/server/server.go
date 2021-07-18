@@ -18,6 +18,7 @@ import (
 const maxJobs = 10
 
 func main(cfg config.Config) {
+	os.Mkdir("./results", 0755)
 	e := router.New(cfg)
 
 	jobs := make(chan model.Job, maxJobs)

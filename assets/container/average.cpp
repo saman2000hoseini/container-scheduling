@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
 
     ofstream myFile(argv[2]);
     myFile << sum / count;
+    cout << sum / count;
     myFile.close();
 
     return 0;

@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
 
     ofstream myFile(argv[2]);
     myFile << max;
+    cout << max;
     myFile.close();
 
     return 0;

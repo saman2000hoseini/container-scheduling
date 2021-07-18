@@ -45,8 +45,10 @@ int main(int argc, char **argv) {
     source.close();
 
     ofstream myFile(argv[2]);
-    for (const auto &x: word_counts)
+    for (const auto &x: word_counts) {
         myFile << x.second << ": " << x.first << endl;
+        cout << x.second << ": " << x.first << endl;
+    }
     myFile.close();
 
     return 0;

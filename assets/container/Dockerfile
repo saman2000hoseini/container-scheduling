@@ -8,7 +8,9 @@ RUN apt update
 RUN apt install -y \
       gcc \
       musl-dev \
-      build-essential
+      build-essential \
+      python \
+      python3-pip
 
 WORKDIR /app
 

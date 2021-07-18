@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
 
     ofstream myFile(argv[2]);
     myFile << min;
+    cout << min;
     myFile.close();
 
     return 0;
