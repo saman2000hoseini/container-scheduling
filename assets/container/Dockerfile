@@ -1,12 +1,14 @@
-FROM alpine:3.14.0
+FROM ubuntu
 
 ENV TZ=Asia/Tehran \
     PATH="/app:${PATH}"
 
-RUN apk add --update --no-cache \
+RUN apt update
+
+RUN apt install -y \
       gcc \
       musl-dev \
-      build-base
+      build-essential
 
 WORKDIR /app
 
