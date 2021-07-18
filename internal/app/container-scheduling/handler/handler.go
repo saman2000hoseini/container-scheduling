@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/model"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -9,15 +10,17 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/config"
-	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/request"
 	"github.com/sony/sonyflake"
 )
 
 type JobHandler struct {
-	Cfg config.Config
+	cfg  config.Config
+	jobs chan model.Job
 }
 
-var Jobs = make(chan request.JobRequest, 10)
+func NewJobHandler(cfg config.Config, jobs chan model.Job) *JobHandler {
+	return &JobHandler{cfg: cfg, jobs: jobs}
+}
 
 func (h *JobHandler) UserRequest(c echo.Context) error {
 	flake := sonyflake.NewSonyflake(sonyflake.Settings{})
@@ -39,10 +42,9 @@ func (h *JobHandler) UserRequest(c echo.Context) error {
 
 	for _, i := range res[:len(res)-1] {
 		i := strings.Split(i, ",")
-		job := request.JobRequest{Id: id, Operation: i[0][1:], Source: i[1][:len(i[1])-1], Destination: dest}
-		Jobs <- job
+		job := model.Job{Id: id, Operation: i[0][1:], Source: i[1][:len(i[1])-1], Destination: dest}
+		h.jobs <- job
 	}
 
-	return c.String(http.StatusOK, "Your request with the id: "+strconv.FormatUint(id, 10)+" delivered to schedular\n Enter new request")
-
+	return c.String(http.StatusOK, "Your request with the id: "+strconv.FormatUint(id, 10)+" delivered to scheduler\n Enter new request")
 }

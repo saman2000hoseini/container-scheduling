@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/model"
+	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/scheduler"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,10 +15,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const maxJobs = 10
+
 func main(cfg config.Config) {
 	e := router.New(cfg)
 
-	requestHandler := &handler.JobHandler{Cfg: cfg}
+	jobs := make(chan model.Job, maxJobs)
+
+	requestHandler := handler.NewJobHandler(cfg, jobs)
+	jobScheduler := scheduler.NewScheduler(jobs)
 
 	e.POST("/request", requestHandler.UserRequest)
 
@@ -28,6 +35,8 @@ func main(cfg config.Config) {
 			logrus.Fatalf("failed to start container scheduling server: %s", err.Error())
 		}
 	}()
+
+	go jobScheduler.Run()
 
 	logrus.Info("container scheduling server started!")
 
