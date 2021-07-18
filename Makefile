@@ -14,6 +14,6 @@ build-image:
 	docker build -t container_scheduling ./assets/container
 
 run-containers:
-	docker run -d --name container_scheduler1 container_scheduling
-	docker run -d --name container_scheduler2 container_scheduling
-	docker run -d --name container_scheduler3 container_scheduling
+	docker run -d -t --name container_scheduler1 container_scheduling
+	docker run -d -t --name container_scheduler2 container_scheduling
+	docker run -d -t --name container_scheduler3 container_scheduling
