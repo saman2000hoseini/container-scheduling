@@ -72,10 +72,33 @@ func (j Job) Handle(container string) error {
 
 		lng := getLastSection(j.Operation, ".")
 		if lng == "py" {
-			cmd = exec.Command(dockerCommand, execCommand, container, "python3", "./temp/"+op, "./temp/"+source)
+			cmd = exec.Command(dockerCommand, execCommand, container, "/app/syncdependencies.sh")
+			logrus.Info(cmd.String())
+
 			out, err = cmd.Output()
 			if err != nil {
-				cleanup(container)
+				logrus.Info(out)
+				//cleanup(container)
+				return err
+			}
+
+			cmd = exec.Command(dockerCommand, execCommand, container, "pip", "install", "-r", "./requirements.txt")
+			logrus.Info(cmd.String())
+
+			out, err = cmd.Output()
+			if err != nil {
+				logrus.Info(out)
+				//cleanup(container)
+				return err
+			}
+
+			cmd = exec.Command(dockerCommand, execCommand, container, "python3", "./temp/"+op, "./temp/"+source, "./temp/"+op+".txt")
+			logrus.Info(cmd.String())
+
+			out, err = cmd.Output()
+			if err != nil {
+				logrus.Info(out)
+				//cleanup(container)
 				return err
 			}
 		} else if lng == "cpp" {

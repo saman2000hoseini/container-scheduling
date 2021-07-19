@@ -52,9 +52,10 @@ func (c *Container) Execute() {
 
 		if err := job.Handle(c.name); err != nil {
 			logrus.Errorf("error while executing %s: %s", job.String(), err.Error())
+		} else {
+			logrus.Infof("Job with id %d finished!", job.Id)
 		}
 
-		logrus.Infof("Job with id %d finished!", job.Id)
 		c.decrement()
 	}
 }
