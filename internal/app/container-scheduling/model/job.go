@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"github.com/saman2000hoseini/container-scheduling/internal/pkg/operation"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os/exec"
@@ -13,7 +14,6 @@ type Job struct {
 	Operation   string
 	Source      string
 	Destination string
-	IsCode      bool
 }
 
 func (j Job) String() string {
@@ -43,9 +43,9 @@ func (j Job) Handle(container string) error {
 
 	source := getLastSection(j.Source, "/")
 
-	if j.IsCode {
-		operation := getLastSection(j.Operation, "/")
-		cmd := exec.Command(dockerCommand, copyFile, j.Operation, container+path+operation)
+	if !operation.IsDefined(j.Operation) {
+		op := getLastSection(j.Operation, "/")
+		cmd := exec.Command(dockerCommand, copyFile, j.Operation, container+path+op)
 		_, err := cmd.Output()
 		if err != nil {
 			cleanup(container)
@@ -59,37 +59,37 @@ func (j Job) Handle(container string) error {
 			return err
 		}
 
-		op := getLastSection(j.Operation, ".")
-		if op == "py" {
-			cmd = exec.Command(dockerCommand, execCommand, container, "python3", "./temp/"+operation, "./temp/"+source)
+		lng := getLastSection(j.Operation, ".")
+		if lng == "py" {
+			cmd = exec.Command(dockerCommand, execCommand, container, "python3", "./temp/"+op, "./temp/"+source)
 			out, err = cmd.Output()
 			if err != nil {
 				cleanup(container)
 				return err
 			}
-		} else if op == "cpp" {
-			cmd = exec.Command(dockerCommand, execCommand, container, "g++", "./temp/"+operation)
+		} else if lng == "cpp" {
+			cmd = exec.Command(dockerCommand, execCommand, container, "g++", "./temp/"+op)
 			_, err = cmd.Output()
 			if err != nil {
 				cleanup(container)
 				return err
 			}
 
-			cmd = exec.Command(dockerCommand, execCommand, container, "./a", "./temp/"+source)
+			cmd = exec.Command(dockerCommand, execCommand, container, "./a.out", "./temp/"+source, "/app/temp/"+j.Destination)
 			out, err = cmd.Output()
 			if err != nil {
 				cleanup(container)
 				return err
 			}
-		} else if op == "c" {
-			cmd = exec.Command(dockerCommand, execCommand, container, "gcc", "./temp/"+operation)
+		} else if lng == "c" {
+			cmd = exec.Command(dockerCommand, execCommand, container, "gcc", "/app/temp/"+op)
 			_, err = cmd.Output()
 			if err != nil {
 				cleanup(container)
 				return err
 			}
 
-			cmd = exec.Command(dockerCommand, execCommand, container, "./a", "./temp/"+source)
+			cmd = exec.Command(dockerCommand, execCommand, container, "./a.out", "/app/temp/"+source, "/app/temp/"+j.Destination)
 			out, err = cmd.Output()
 			if err != nil {
 				cleanup(container)
@@ -101,7 +101,7 @@ func (j Job) Handle(container string) error {
 			return err
 		}
 
-		return ioutil.WriteFile(dir+j.Operation+".out", out, 0644)
+		return ioutil.WriteFile(dir+op+".out", out, 0644)
 	}
 
 	cmd := exec.Command(dockerCommand, copyFile, j.Source, container+path+source)
