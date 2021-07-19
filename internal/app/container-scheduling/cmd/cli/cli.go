@@ -42,12 +42,18 @@ func main(cfg config.Config) {
 
 	go jobScheduler.Run()
 
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		logrus.Info("Enter New Request: ")
-		text, _ := reader.ReadString('\n')
-		requestHandler.UserRequest(text)
-	}
+	go func() {
+		reader := bufio.NewReader(os.Stdin)
+		for {
+			logrus.Info("Enter New Request: ")
+			text, _ := reader.ReadString('\n')
+			requestHandler.UserRequest(text)
+		}
+	}()
+
+	s := <-sig
+
+	logrus.Infof("signal %s received", s)
 }
 
 func Register(root *cobra.Command, cfg config.Config) {

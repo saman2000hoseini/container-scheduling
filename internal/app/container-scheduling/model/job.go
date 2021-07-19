@@ -5,6 +5,7 @@ import (
 	"github.com/saman2000hoseini/container-scheduling/internal/pkg/operation"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -21,7 +22,7 @@ func (j Job) String() string {
 }
 
 const (
-	dir           = "./results/"
+	defaultDir    = "./results/"
 	dockerCommand = "docker"
 	copyFile      = "cp"
 	execCommand   = "exec"
@@ -36,6 +37,16 @@ func (j Job) Handle(container string) error {
 	if container == "" {
 		container = defaultContainer
 	}
+
+	dir := j.Destination
+
+	if dir == "" {
+		dir = defaultDir
+	} else {
+		dir += "/"
+	}
+
+	os.Mkdir(dir, 0755)
 
 	if err := setup(container); err != nil {
 		return err
@@ -75,7 +86,7 @@ func (j Job) Handle(container string) error {
 				return err
 			}
 
-			cmd = exec.Command(dockerCommand, execCommand, container, "./a.out", "./temp/"+source, "/app/temp/"+j.Destination)
+			cmd = exec.Command(dockerCommand, execCommand, container, "./a.out", "./temp/"+source, "/app/temp/"+op+".txt")
 			out, err = cmd.Output()
 			if err != nil {
 				cleanup(container)
@@ -89,7 +100,7 @@ func (j Job) Handle(container string) error {
 				return err
 			}
 
-			cmd = exec.Command(dockerCommand, execCommand, container, "./a.out", "/app/temp/"+source, "/app/temp/"+j.Destination)
+			cmd = exec.Command(dockerCommand, execCommand, container, "./a.out", "/app/temp/"+source, "/app/temp/"+op+".txt")
 			out, err = cmd.Output()
 			if err != nil {
 				cleanup(container)
@@ -115,7 +126,7 @@ func (j Job) Handle(container string) error {
 		return err
 	}
 
-	cmd = exec.Command(dockerCommand, execCommand, container, j.Operation, "/app/temp/"+source, "/app/temp/"+j.Destination)
+	cmd = exec.Command(dockerCommand, execCommand, container, j.Operation, "/app/temp/"+source, "/app/temp/"+j.Operation+".txt")
 	logrus.Info(cmd.String())
 
 	out, err = cmd.Output()
@@ -128,7 +139,7 @@ func (j Job) Handle(container string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(dir+j.Destination, out, 0644)
+	return ioutil.WriteFile(dir+j.Operation+".txt", out, 0644)
 }
 
 func getLastSection(entry, delimiter string) string {

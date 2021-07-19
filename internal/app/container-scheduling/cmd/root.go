@@ -15,9 +15,7 @@ func NewRootCommand() *cobra.Command {
 
 	cfg := config.Init()
 
-	//schedular.Register(root)
 	server.Register(root, cfg)
-
 	cli.Register(root, cfg)
 
 	return root

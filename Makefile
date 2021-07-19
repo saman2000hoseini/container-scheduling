@@ -2,6 +2,9 @@ export APP=container-scheduling
 export LDFLAGS="-w -s"
 
 run:
+	go run -ldflags $(LDFLAGS) ./cmd/container-scheduling cli
+
+run-server:
 	go run -ldflags $(LDFLAGS) ./cmd/container-scheduling server
 
 build:

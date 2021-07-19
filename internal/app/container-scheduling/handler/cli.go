@@ -29,6 +29,7 @@ func (h *CLIJobHandler) UserRequest(request string) {
 	res := re.FindAllString(string(request), -1)
 	if res == nil {
 		logrus.Info("Invalid Request!")
+		return
 	}
 
 	dest := res[len(res)-1][1 : len(res[len(res)-1])-1]
