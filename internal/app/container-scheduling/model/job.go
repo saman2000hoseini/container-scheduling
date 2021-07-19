@@ -78,7 +78,7 @@ func (j Job) Handle(container string) error {
 			out, err = cmd.Output()
 			if err != nil {
 				logrus.Info(out)
-				//cleanup(container)
+				cleanup(container)
 				return err
 			}
 
@@ -88,7 +88,7 @@ func (j Job) Handle(container string) error {
 			out, err = cmd.Output()
 			if err != nil {
 				logrus.Info(out)
-				//cleanup(container)
+				cleanup(container)
 				return err
 			}
 
@@ -98,7 +98,7 @@ func (j Job) Handle(container string) error {
 			out, err = cmd.Output()
 			if err != nil {
 				logrus.Info(out)
-				//cleanup(container)
+				cleanup(container)
 				return err
 			}
 		} else if lng == "cpp" {
