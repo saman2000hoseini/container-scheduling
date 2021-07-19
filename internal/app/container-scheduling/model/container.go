@@ -54,6 +54,7 @@ func (c *Container) Execute() {
 			logrus.Errorf("error while executing %s: %s", job.String(), err.Error())
 		}
 
+		logrus.Infof("Job with id %d finished!", job.Id)
 		c.decrement()
 	}
 }
