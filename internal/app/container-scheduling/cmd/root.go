@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/cmd/cli"
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/cmd/server"
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/config"
 	"github.com/spf13/cobra"
@@ -14,9 +15,10 @@ func NewRootCommand() *cobra.Command {
 
 	cfg := config.Init()
 
+	//schedular.Register(root)
 	server.Register(root, cfg)
 
-	//schedular.Register(root)
+	cli.Register(root, cfg)
 
 	return root
 }

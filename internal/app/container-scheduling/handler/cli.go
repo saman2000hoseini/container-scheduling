@@ -1,42 +1,34 @@
 package handler
 
 import (
-	"io/ioutil"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/model"
+	"github.com/sirupsen/logrus"
 
-	"github.com/labstack/echo/v4"
 	"github.com/saman2000hoseini/container-scheduling/internal/app/container-scheduling/config"
 	"github.com/sony/sonyflake"
 )
 
-type ServerJobHandler struct {
+type CLIJobHandler struct {
 	cfg  config.Config
 	jobs chan model.Job
 }
 
-func ServerNewJobHandler(cfg config.Config, jobs chan model.Job) *ServerJobHandler {
-	return &ServerJobHandler{cfg: cfg, jobs: jobs}
+func CLINewJobHandler(cfg config.Config, jobs chan model.Job) *CLIJobHandler {
+	return &CLIJobHandler{cfg: cfg, jobs: jobs}
 }
 
-func (h *ServerJobHandler) UserRequest(c echo.Context) error {
+func (h *CLIJobHandler) UserRequest(request string) {
 	flake := sonyflake.NewSonyflake(sonyflake.Settings{})
 	id, _ := flake.NextID()
 
-	defer c.Request().Body.Close()
-	b, err := ioutil.ReadAll(c.Request().Body)
-	if err != nil {
-		return c.NoContent(http.StatusInternalServerError)
-	}
-
 	re, _ := regexp.Compile("(<.*?>)")
-	res := re.FindAllString(string(b), -1)
+	res := re.FindAllString(string(request), -1)
 	if res == nil {
-		return c.NoContent(http.StatusBadRequest)
+		logrus.Info("Invalid Request!")
 	}
 
 	dest := res[len(res)-1][1 : len(res[len(res)-1])-1]
@@ -47,5 +39,5 @@ func (h *ServerJobHandler) UserRequest(c echo.Context) error {
 		h.jobs <- job
 	}
 
-	return c.String(http.StatusOK, "Your request with the id: "+strconv.FormatUint(id, 10)+" delivered to scheduler\n Enter new request")
+	logrus.Info("Your request with the id: " + strconv.FormatUint(id, 10) + " delivered to scheduler!")
 }
