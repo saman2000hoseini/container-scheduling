@@ -125,5 +125,4 @@ modules.xml
 
 # End of https://www.toptal.com/developers/gitignore/api/go,jetbrains+all,database
 
-test
 results
