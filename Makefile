@@ -25,3 +25,13 @@ docker-cleanup:
 	docker stop container_scheduler1 container_scheduler2 container_scheduler3
 	docker rm container_scheduler1 container_scheduler2 container_scheduler3
 	docker rmi container_scheduling
+
+remake:
+	docker stop container_scheduler1 container_scheduler2 container_scheduler3
+	docker rm container_scheduler1 container_scheduler2 container_scheduler3
+	docker rmi container_scheduling
+	docker build -t container_scheduling ./assets/container
+	docker run -d -t --name container_scheduler1 container_scheduling
+	docker run -d -t --name container_scheduler2 container_scheduling
+	docker run -d -t --name container_scheduler3 container_scheduling
+

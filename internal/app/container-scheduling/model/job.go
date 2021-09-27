@@ -18,7 +18,7 @@ type Job struct {
 }
 
 func (j Job) String() string {
-	return fmt.Sprintf("Id: %d\nOperation: %s\nSource: %s\nDestination: %s", j.Id, j.Operation, j.Source, j.Destination)
+	return fmt.Sprintf("Id: %d\tOperation: %s\tSource: %s\tDestination: %s", j.Id, j.Operation, j.Source, j.Destination)
 }
 
 const (
@@ -57,14 +57,14 @@ func (j Job) Handle(container string) error {
 	if !operation.IsDefined(j.Operation) {
 		op := getLastSection(j.Operation, "/")
 		cmd := exec.Command(dockerCommand, copyFile, j.Operation, container+path+op)
-		_, err := cmd.Output()
+		err := cmd.Run()
 		if err != nil {
 			cleanup(container)
 			return err
 		}
 
 		cmd = exec.Command(dockerCommand, copyFile, j.Source, container+path+source)
-		_, err = cmd.Output()
+		err = cmd.Run()
 		if err != nil {
 			cleanup(container)
 			return err
@@ -72,7 +72,24 @@ func (j Job) Handle(container string) error {
 
 		lng := getLastSection(j.Operation, ".")
 		if lng == "py" {
-			cmd = exec.Command(dockerCommand, execCommand, container, "python3", "./temp/"+op, "./temp/"+source)
+			cmd = exec.Command(dockerCommand, execCommand, container, "/app/syncdependencies.sh")
+
+			err = cmd.Run()
+			if err != nil {
+				cleanup(container)
+				return err
+			}
+
+			cmd = exec.Command(dockerCommand, execCommand, container, "pip", "install", "-r", "./requirements.txt")
+
+			err = cmd.Run()
+			if err != nil {
+				cleanup(container)
+				return err
+			}
+
+			cmd = exec.Command(dockerCommand, execCommand, container, "python3", "./temp/"+op, "./temp/"+source, "./temp/"+op+".txt")
+
 			out, err = cmd.Output()
 			if err != nil {
 				cleanup(container)
@@ -80,7 +97,7 @@ func (j Job) Handle(container string) error {
 			}
 		} else if lng == "cpp" {
 			cmd = exec.Command(dockerCommand, execCommand, container, "g++", "./temp/"+op)
-			_, err = cmd.Output()
+			err = cmd.Run()
 			if err != nil {
 				cleanup(container)
 				return err
@@ -94,7 +111,7 @@ func (j Job) Handle(container string) error {
 			}
 		} else if lng == "c" {
 			cmd = exec.Command(dockerCommand, execCommand, container, "gcc", "/app/temp/"+op)
-			_, err = cmd.Output()
+			err = cmd.Run()
 			if err != nil {
 				cleanup(container)
 				return err
@@ -118,7 +135,7 @@ func (j Job) Handle(container string) error {
 	cmd := exec.Command(dockerCommand, copyFile, j.Source, container+path+source)
 	logrus.Info(cmd.String())
 
-	_, err := cmd.Output()
+	err := cmd.Run()
 	if err != nil {
 		logrus.Errorf("error while transfering input to container: %s", err.Error())
 
@@ -136,7 +153,7 @@ func (j Job) Handle(container string) error {
 	}
 
 	if err := cleanup(container); err != nil {
-		return err
+		logrus.Errorf("error while cleaning up container: %s", err.Error())
 	}
 
 	return ioutil.WriteFile(dir+j.Operation+".txt", out, 0644)
