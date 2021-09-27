@@ -18,7 +18,7 @@ type Job struct {
 }
 
 func (j Job) String() string {
-	return fmt.Sprintf("Id: %d\nOperation: %s\nSource: %s\nDestination: %s", j.Id, j.Operation, j.Source, j.Destination)
+	return fmt.Sprintf("Id: %d\tOperation: %s\tSource: %s\tDestination: %s", j.Id, j.Operation, j.Source, j.Destination)
 }
 
 const (
